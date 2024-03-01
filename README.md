@@ -1,4 +1,4 @@
-# GO-FFI
+# Go-FFI
 
 Go FFI to call C and Rust code.
 
