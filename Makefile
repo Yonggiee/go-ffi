@@ -1,4 +1,5 @@
 # PHONY means that it doesn't correspond to a file; it always runs the build commands.
+# @ command is not shown 
 
 .PHONY: build-all
 build-all: build-c build-dynamic build-static build-server
