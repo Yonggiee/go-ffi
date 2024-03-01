@@ -1,39 +1,36 @@
-ROOT_DIR := $(dir $(realpath $(lastword $(MAKEFILE_LIST))))
-
 # PHONY means that it doesn't correspond to a file; it always runs the build commands.
 
 .PHONY: build-all
-build-all: build-dynamic build-static
+build-all: build-c build-dynamic build-static build-server
 
-.PHONY: run-all
-run-all: run-dynamic run-static
+.PHONY: build-c
+build-c:
+	go build -o bin/c cmd/c_ffi/main.go
 
 .PHONY: build-dynamic
 build-dynamic:
 	@cd rust/hello && cargo build --release
 	@cp rust/hello/target/release/libhello.dylib rust/
-	go build -ldflags="-r $(ROOT_DIR)lib" main_dynamic.go
+	go build -o bin/rust_dynamic cmd/rust_dynamic_ffi/main.go
 
 .PHONY: build-static
 build-static:
 	@cd rust/hello && cargo build --release
 	@cp rust/hello/target/release/libhello.a rust/
-	go build main_static.go
+	go build -o bin/rust_static cmd/rust_static_ffi/main.go
 
-.PHONY: run-dynamic
-run-dynamic: build-dynamic
-	@./main_dynamic
+.PHONY: build-server
+build-server:
+	@cd rust/hello && cargo build --release
+	@cp rust/hello/target/release/libhello.a cmd/rust_ffi_server/ 
+	@cp rust/hello.h cmd/rust_ffi_server/ 
+	go build -o bin/rust_server cmd/rust_ffi_server/main.go
+	rm -rf cmd/rust_ffi_server/libhello.a cmd/rust_ffi_server/hello.h
 
-.PHONY: run-static
-run-static: build-static
-	@./main_static
-
-# This is just for running the Rust lib tests natively via cargo
-.PHONY: test-rust-lib
-test-rust-lib:
-	@cd rust/hello && cargo test -- --nocapture
-
-.PHONY: clean
-clean:
-	rm -rf main_dynamic main_static rust/libhello.so rust/libhello.a rust/hello/target
-	
+.PHONY: build-server-release # to be compatible with linux amd64
+build-server-release:
+	@cd rust/hello && CARGO_TARGET_X86_64_UNKNOWN_LINUX_GNU_LINKER=x86_64-unknown-linux-gnu-gcc cargo build --release --target=x86_64-unknown-linux-gnu
+	@cp rust/hello/target/x86_64-unknown-linux-gnu/release/libhello.a cmd/rust_ffi_server/ 
+	@cp rust/hello.h cmd/rust_ffi_server/ 
+	go build -o bin/rust_server-release cmd/rust_ffi_server/main.go
+	rm -rf cmd/rust_ffi_server/libhello.a cmd/rust_ffi_server/hello.h

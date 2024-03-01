@@ -1,5 +1,1 @@
-main_dynamic
-main_static
-main_c
-*libhello.a
-*libhello.dylib
+/bin

@@ -1,6 +1,5 @@
 #include <math.h>
 #include <stdio.h>
-#include "printer.h"
 
 void printPiJSON()
 {
