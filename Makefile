@@ -2,7 +2,11 @@
 # @ command is not shown 
 
 .PHONY: build-all
-build-all: build-c build-dynamic build-static build-server
+build-all: build-c build-dynamic build-static build-server build-c-malloc
+
+.PHONY: build-c-malloc
+build-c-malloc:
+	go build -o bin/c_malloc cmd/c_malloc_ffi/main.go
 
 .PHONY: build-c
 build-c:
